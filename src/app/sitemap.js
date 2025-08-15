@@ -1,5 +1,5 @@
 export default async function sitemap() {
-    const baseUrl = "https://seusite.com";
+    const baseUrl = "https://devflix-drab.vercel.app";
 
     return [
         {
