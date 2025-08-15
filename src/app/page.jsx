@@ -84,7 +84,7 @@ export default function Home() {
             setPage((prev) => Math.min(prev + 1, data?.total_pages))
           }
           disabled={page === data?.total_pages || isFetching}
-          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          className="px-4 py-2 bg-gray-700 text-white cursor-pointer rounded hover:bg-gray-600 disabled:opacity-50"
         >
           Próxima
         </button>
