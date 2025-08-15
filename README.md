@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Devflix é um catálogo de filmes construído com Next.js, React, Tailwind CSS e React Query. Ele consome dados da The Movie Database API (TMDb) e permite:
 
-## Getting Started
+- Visualizar filmes populares.
 
-First, run the development server:
+- Buscar filmes por título com debounce.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Navegar entre páginas de filmes com paginação ou botão de carregar mais.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Visualizar detalhes de cada filme em uma página separada.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Layout responsivo e estilizado.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Tecnologias
 
-## Learn More
+ Next.js – Framework React para SSR/SSG.
 
-To learn more about Next.js, take a look at the following resources:
+ React e React DOM – Biblioteca principal.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ Axios – Para requisições HTTP.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+ React Query – Gerenciamento de estado assíncrono.
 
-## Deploy on Vercel
+ Tailwind CSS – Framework de CSS utilitário.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ Lucide React – Biblioteca de ícones.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Funcionalidades
+
+- Listagem de filmes populares.
+
+- Pesquisa com debounce e resultados em tempo real.
+
+- Paginação com botões numéricos e navegação anterior/próxima.
+
+- Página de detalhes do filme com sinopse, data de lançamento e avaliação.
+
+- Spinner de carregamento enquanto os dados são buscados.
+
+git clone https://github.com/DaniloPy-coder/Devflix.git
+cd devflix
+npm install
