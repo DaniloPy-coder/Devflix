@@ -38,7 +38,7 @@ export default function Home() {
   const totalPagesToShow = Math.min(data?.total_pages || 1, 5);
 
   return (
-    <main className="p-4 max-w-7xl mx-auto pt-15">
+    <main className="p-4 max-w-7xl mx-auto pt-16">
       <Header search={search} setSearch={setSearch} />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
@@ -57,7 +57,7 @@ export default function Home() {
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1 || isFetching}
-          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          className="py-2 px-4 bg-gray-700 rounded text-white hover:bg-gray-600 disabled:opacity-50 cursor-pointer"
         >
           Anterior
         </button>
