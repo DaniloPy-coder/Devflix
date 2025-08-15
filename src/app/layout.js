@@ -1,4 +1,4 @@
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 import { ReactQueryProvider } from "lib/react-query";
 import "./globals.css";
 import Header from "../components/Header";
