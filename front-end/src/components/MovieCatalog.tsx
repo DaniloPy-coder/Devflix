@@ -22,7 +22,6 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
     data: movies,
     isLoading,
     error,
-    isPlaceholderData,
   } = useQuery({
     queryKey: ["movies", "popular", page],
     queryFn: () => fetchPopularMovies(page),
