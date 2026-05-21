@@ -1,16 +1,50 @@
 import MovieCatalog from "../components/MovieCatalog";
 import { fetchPopularMovies } from "../services/tmdb";
+interface Movie {
+  id?: number | string;
+  title: string;
+  overview?: string | null;
+  poster_path?: string | null;
+  release_date?: string | null;
+  genres?: Array<{ id: number; name: string }>;
+}
+
+async function fetchLocalMovies(): Promise<Movie[]> {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/movies", {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (error) {
+    console.error("Erro ao buscar filmes locais do Laravel:", error);
+    return [];
+  }
+}
 
 export default async function HomePage() {
-  let initialMoviesData = null;
+  let combinedMovies: Movie[] = [];
   let errorMessage = "";
 
   try {
-    initialMoviesData = await fetchPopularMovies();
+    const [tmdbMovies, localMovies] = await Promise.all([
+      fetchPopularMovies(),
+      fetchLocalMovies(),
+    ]);
+
+    const listTmdb = (Array.isArray(tmdbMovies) ? tmdbMovies : []) as Movie[];
+    const listLocal = (
+      Array.isArray(localMovies) ? localMovies : []
+    ) as Movie[];
+
+    combinedMovies = [...listLocal, ...listTmdb];
+
+    if (combinedMovies.length === 0) {
+      errorMessage = "Nenhum filme encontrado no momento.";
+    }
   } catch (error) {
-    console.error("Erro ao carregar os filmes no servidor:", error);
-    errorMessage =
-      "Não foi possível carregar os filmes populares no momento. Por favor, tente mais tarde.";
+    console.error("Erro geral na HomePage:", error);
+    errorMessage = "Ocorreu um erro ao carregar o catálogo de filmes.";
   }
 
   return (
@@ -20,7 +54,8 @@ export default async function HomePage() {
           Catálogo de Filmes
         </h1>
         <p className="text-lg text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
-          Explore os filmes mais populares do momento.
+          Explore os filmes globais do TMDB misturados aos seus títulos
+          personalizados locais!
         </p>
       </header>
 
@@ -31,7 +66,7 @@ export default async function HomePage() {
           </p>
         </div>
       ) : (
-        <MovieCatalog initialData={initialMoviesData || []} />
+        <MovieCatalog initialData={combinedMovies} />
       )}
     </main>
   );
