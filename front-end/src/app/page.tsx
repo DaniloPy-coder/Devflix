@@ -1,17 +1,21 @@
 import MovieCatalog from "../components/MovieCatalog";
 import { fetchPopularMovies } from "../services/tmdb";
-interface Movie {
-  id?: number | string;
+
+export interface Movie {
+  id: number | string;
   title: string;
   overview?: string | null;
-  poster_path?: string | null;
-  release_date?: string | null;
-  genres?: Array<{ id: number; name: string }>;
+  poster_path: string;
+  release_date: string;
 }
 
-async function fetchLocalMovies(): Promise<Movie[]> {
+async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/movies", {
+    const url = userId
+      ? `http://127.0.0.1:8000/api/movies?user_id=${userId}`
+      : "http://127.0.0.1:8000/api/movies";
+
+    const res = await fetch(url, {
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -27,14 +31,14 @@ export default async function HomePage() {
   let errorMessage = "";
 
   try {
-    const [tmdbMovies, localMovies] = await Promise.all([
-      fetchPopularMovies(),
+    const [fetchedTmdb, fetchedLocal] = await Promise.all([
+      fetchPopularMovies(1),
       fetchLocalMovies(),
     ]);
 
-    const listTmdb = (Array.isArray(tmdbMovies) ? tmdbMovies : []) as Movie[];
+    const listTmdb = (Array.isArray(fetchedTmdb) ? fetchedTmdb : []) as Movie[];
     const listLocal = (
-      Array.isArray(localMovies) ? localMovies : []
+      Array.isArray(fetchedLocal) ? fetchedLocal : []
     ) as Movie[];
 
     combinedMovies = [...listLocal, ...listTmdb];
