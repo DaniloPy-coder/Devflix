@@ -3,25 +3,49 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
-import { fetchMovieById, TMDBMovieDetail } from "@/src/services/tmdb";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
+
+interface MovieDetail {
+  id: number | string;
+  title: string;
+  poster_path: string;
+  release_date: string;
+  overview?: string;
+  description?: string;
+  user_id?: number;
+}
 
 interface MovieDetailsClientProps {
   movieId: string;
-  initialData: TMDBMovieDetail | null;
+  initialData: MovieDetail | null;
+  isLocal: boolean;
 }
 
 export default function MovieDetailsClient({
   movieId,
   initialData,
+  isLocal,
 }: MovieDetailsClientProps) {
   const {
     data: movie,
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ["movie", movieId],
-    queryFn: () => fetchMovieById(movieId),
+  } = useQuery<MovieDetail, Error>({
+    queryKey: ["movie", isLocal ? "local" : "tmdb", movieId],
+
+    queryFn: async () => {
+      if (isLocal) {
+        const res = await fetch(`http://127.0.0.1:8000/api/movies/${movieId}`);
+        if (!res.ok) throw new Error("Filme não encontrado no banco local");
+        return res.json();
+      }
+
+      const { fetchMovieById } = await import("@/src/services/tmdb");
+      const data = await fetchMovieById(movieId);
+
+      if (!data) throw new Error("Filme não encontrado na API do TMDB");
+      return data;
+    },
     initialData: initialData ?? undefined,
     staleTime: 1000 * 60 * 10,
   });
@@ -45,7 +69,9 @@ export default function MovieDetailsClient({
   }
 
   const imageUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    ? movie.poster_path.startsWith("http")
+      ? movie.poster_path
+      : `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://placehold.co/500x750?text=Sem+Foto";
 
   return (
@@ -56,7 +82,8 @@ export default function MovieDetailsClient({
             src={imageUrl}
             alt={`Pôster do filme ${movie.title}`}
             fill
-            sizes="(max-w-768px) 100vw, 33vw"
+            unoptimized={movie.poster_path?.startsWith("http")}
+            sizes="(max-width: 768px) 100vw, 33vw"
             priority
             className="object-cover"
           />
@@ -78,7 +105,9 @@ export default function MovieDetailsClient({
             {movie.release_date && (
               <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-6">
                 Lançamento:{" "}
-                {new Date(movie.release_date).toLocaleDateString("pt-BR")}
+                {movie.release_date.includes("-")
+                  ? movie.release_date.split("-").reverse().join("/")
+                  : new Date(movie.release_date).toLocaleDateString("pt-BR")}
               </p>
             )}
 
@@ -86,7 +115,9 @@ export default function MovieDetailsClient({
               Sinopse
             </h2>
             <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed text-justify">
-              {movie.overview || "Nenhuma sinopse disponível em português."}
+              {movie.overview ||
+                movie.description ||
+                "Nenhuma sinopse disponível."}
             </p>
           </div>
         </div>
