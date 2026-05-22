@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import SearchBar from "./SearchBar";
 import MovieCard, { Movie } from "./MovieCard";
 import LoadingSpinner from "./LoadingSpinner";
@@ -15,74 +15,156 @@ interface MovieCatalogProps {
 export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [isMounted, setIsMounted] = useState(false);
+
+  const [currentUserId] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const savedUser = localStorage.getItem("devflix_user");
+    return savedUser ? Number(JSON.parse(savedUser).id) : null;
+  });
+
+  const [isLogged] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("devflix_user");
+  });
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const {
-    data: movies,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: tmdbMovies, isLoading: isLoadingTmdb } = useQuery<Movie[]>({
     queryKey: ["movies", "popular", page],
     queryFn: () => fetchPopularMovies(page),
-    initialData: page === 1 ? initialData : undefined,
+    placeholderData: page === 1 ? initialData : undefined,
     staleTime: 1000 * 60 * 5,
   });
 
-  if (isLoading) return <LoadingSpinner />;
-  if (error) {
-    return (
-      <p className="text-center text-red-500">Erro ao carregar os filmes.</p>
-    );
-  }
+  const { data: localMovies, isLoading: isLoadingLocal } = useQuery<Movie[]>({
+    queryKey: ["movies", "all_local"],
+    queryFn: async () => {
+      const res = await fetch(`http://127.0.0.1:8000/api/movies`);
+      return res.ok ? await res.json() : [];
+    },
+    enabled: isMounted,
+  });
 
-  const filteredMovies = (movies || []).filter((movie: Movie) =>
-    movie.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+  const handleMovieDeleted = (deletedId: number | string) => {
+    queryClient.setQueryData(
+      ["movies", "all_local"],
+      (oldData: Movie[] | undefined) =>
+        oldData?.filter((m) => m.id !== deletedId) || [],
+    );
+  };
+
+  if (!isMounted) return <LoadingSpinner />;
+
+  const myMovies = (localMovies || []).filter(
+    (m) => m.user_id === currentUserId,
+  );
+  const communityMovies = (localMovies || []).filter(
+    (m) => m.user_id !== currentUserId,
+  );
+
+  const filteredMyMovies = myMovies.filter((m) =>
+    m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+  );
+
+  const filteredCommunity = communityMovies.filter((m) =>
+    m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
+  );
+
+  const filteredTmdb = (tmdbMovies || []).filter((m) =>
+    m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
 
   return (
     <>
       <SearchBar value={search} onChange={setSearch} />
 
-      {filteredMovies.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-neutral-500 dark:text-neutral-400">
-            Nenhum filme encontrado para &quot;{search}&quot;.
-          </p>
-        </div>
-      ) : (
-        <>
+      {isLogged && filteredMyMovies.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">Meus Filmes</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {filteredMovies.map((movie: Movie) => (
-              <MovieCard key={movie.id} movie={movie} />
+            {filteredMyMovies.map((m) => (
+              <MovieCard
+                key={m.id}
+                movie={m}
+                isLogged={isLogged}
+                currentUserId={currentUserId}
+                onDeleted={() => handleMovieDeleted(m.id)}
+              />
             ))}
           </div>
-
-          {search === "" && (
-            <div className="flex items-center justify-center gap-4 mt-12">
-              <button
-                onClick={() => setPage((old) => Math.max(old - 1, 1))}
-                disabled={page === 1}
-                className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
-              >
-                ← Anterior
-              </button>
-
-              <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                Página {page}
-              </span>
-
-              <button
-                onClick={() => setPage((old) => old + 1)}
-                disabled={page >= 500}
-                className="px-4 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
-              >
-                Seguinte →
-              </button>
-            </div>
-          )}
-        </>
+        </section>
       )}
+
+      {filteredCommunity.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Filmes da Comunidade
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {filteredCommunity.map((m) => (
+              <MovieCard
+                key={m.id}
+                movie={m}
+                isLogged={isLogged}
+                currentUserId={currentUserId}
+                onDeleted={() => handleMovieDeleted(m.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <h2 className="text-2xl font-bold text-white mb-6">
+          Filmes Recomendados
+        </h2>
+        {isLoadingTmdb || isLoadingLocal ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {filteredTmdb.map((m) => (
+              <MovieCard
+                key={m.id}
+                movie={m}
+                isLogged={isLogged}
+                currentUserId={currentUserId}
+                onDeleted={() => {}}
+              />
+            ))}
+          </div>
+        )}
+
+        {search === "" && (
+          <div className="flex items-center justify-center gap-6 mt-12 mb-8">
+            <button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1 || isLoadingTmdb}
+              className="px-6 py-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 disabled:opacity-50"
+            >
+              Anterior
+            </button>
+            <span className="text-white font-medium">Página {page}</span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={isLoadingTmdb}
+              className="px-6 py-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 disabled:opacity-50"
+            >
+              Próxima
+            </button>
+          </div>
+        )}
+      </section>
     </>
   );
 }
