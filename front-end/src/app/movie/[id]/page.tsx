@@ -12,25 +12,27 @@ export async function generateMetadata({
   const { id } = await params;
   try {
     const movie = await fetchMovieById(id);
-    return { title: `${movie.title} | Catálogo de Filmes` };
+    return { title: movie.title };
   } catch {
-    return { title: "Detalhes do Filme" };
+    return { title: "Detalhes" };
   }
 }
 
 export default async function MoviePage({ params }: MoviePageProps) {
   const { id } = await params;
-  let initialMovieData = null;
-
+  let initialData = null;
   try {
-    initialMovieData = await fetchMovieById(id);
-  } catch (error) {
-    console.error("Erro no fetch dos detalhes do filme no servidor:", error);
+    initialData = await fetchMovieById(id);
+  } catch (e) {
+    console.error(e);
   }
-
   return (
     <main className="grow container mx-auto px-4 py-12 max-w-7xl">
-      <MovieDetailsClient movieId={id} initialData={initialMovieData} />
+      <MovieDetailsClient
+        movieId={id}
+        initialData={initialData}
+        isLocal={false}
+      />
     </main>
   );
 }
