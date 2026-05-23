@@ -1,26 +1,25 @@
 FROM php:8.3-apache
 
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
+# Instala dependências
+RUN apt-get update && apt-get install -y libpq-dev libzip-dev zip unzip \
     && docker-php-ext-install pdo pdo_pgsql zip
 
+# Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copia o código para a pasta do Apache
-COPY . /var/www/html/
+# --- MUDANÇA AQUI: Aponta o diretório de trabalho para a pasta back-end ---
+WORKDIR /var/www/html/back-end
 
-# Ajusta o documento root para a pasta public do Laravel
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+# Copia o conteúdo da pasta back-end para dentro do diretório de trabalho
+COPY back-end/ .
 
-# Permissões
-RUN mkdir -p /var/www/html/storage/framework/views \
-    && mkdir -p /var/www/html/storage/framework/cache \
-    && mkdir -p /var/www/html/storage/framework/sessions \
-    && mkdir -p /var/www/html/storage/logs \
-    && chown -R www-data:www-data /var/www/html/storage
-    
-# Comando para rodar as migrações e o servidor ao iniciar
-CMD php /var/www/html/artisan migrate --force && apache2-foreground
+# Ajusta o documento root do Apache para a pasta 'public'
+# Como estamos dentro de back-end, o public está em /var/www/html/back-end/public
+RUN sed -i 's|/var/www/html|/var/www/html/back-end/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Permissões do Storage (agora dentro de back-end)
+RUN mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions storage/logs \
+    && chown -R www-data:www-data storage
+
+# Comando de início
+CMD php artisan migrate --force && apache2-foreground
