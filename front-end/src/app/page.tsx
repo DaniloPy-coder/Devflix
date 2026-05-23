@@ -12,8 +12,8 @@ export interface Movie {
 async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
   try {
     const url = userId
-      ? `http://127.0.0.1:8000/api/movies?user_id=${userId}`
-      : "http://127.0.0.1:8000/api/movies";
+      ? `http://127.0.0.1:9000/api/movies?user_id=${userId}`
+      : "http://127.0.0.1:9000/api/movies";
 
     const res = await fetch(url, {
       cache: "no-store",

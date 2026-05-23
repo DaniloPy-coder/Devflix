@@ -7,7 +7,8 @@ interface LocalMoviePageProps {
 
 async function getLocalMovieData(id: string) {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/movies/${id}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const res = await fetch(`${baseUrl}/api/movies/${id}`, {
       cache: "no-store",
     });
     if (res.ok) return await res.json();

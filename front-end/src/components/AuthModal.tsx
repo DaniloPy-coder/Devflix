@@ -42,7 +42,7 @@ export default function AuthModal({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:9000"}/api/${endpoint}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/${endpoint}`,
         {
           method: "POST",
           headers: {

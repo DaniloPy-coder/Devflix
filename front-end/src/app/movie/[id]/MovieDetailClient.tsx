@@ -13,6 +13,7 @@ interface MovieDetail {
   overview?: string;
   description?: string;
   user_id?: number;
+  genres?: { id: number; name: string }[];
 }
 
 interface MovieDetailsClientProps {
@@ -35,7 +36,8 @@ export default function MovieDetailsClient({
 
     queryFn: async () => {
       if (isLocal) {
-        const res = await fetch(`http://127.0.0.1:8000/api/movies/${movieId}`);
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${baseUrl}/api/movies/${movieId}`);
         if (!res.ok) throw new Error("Filme não encontrado no banco local");
         return res.json();
       }
@@ -93,23 +95,37 @@ export default function MovieDetailsClient({
           <div>
             <Link
               href="/"
-              className="inline-flex items-center text-sm font-medium text-neutral-500 hover:text-blue-500 dark:text-neutral-400 mb-6 transition-colors"
+              className="inline-flex items-center text-sm font-medium text-neutral-500 hover:text-red-500 dark:text-neutral-400 mb-6 transition-colors"
             >
               ← Voltar para a listagem
             </Link>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               {movie.title}
             </h1>
 
-            {movie.release_date && (
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-6">
-                Lançamento:{" "}
-                {movie.release_date.includes("-")
-                  ? movie.release_date.split("-").reverse().join("/")
-                  : new Date(movie.release_date).toLocaleDateString("pt-BR")}
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mb-6 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              {movie.release_date && (
+                <span>
+                  {movie.release_date.includes("-")
+                    ? movie.release_date.split("-")[0]
+                    : new Date(movie.release_date).getFullYear()}
+                </span>
+              )}
+
+              {movie.genres && movie.genres.length > 0 && (
+                <div className="flex flex-wrap gap-2 md:ml-2">
+                  {movie.genres.map((genre) => (
+                    <span
+                      key={genre.id}
+                      className="bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs px-2.5 py-1 rounded-full font-semibold border border-neutral-300 dark:border-neutral-700"
+                    >
+                      {genre.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <h2 className="text-lg font-semibold text-foreground mb-2">
               Sinopse

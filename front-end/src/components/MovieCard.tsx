@@ -50,15 +50,12 @@ export default function MovieCard({
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:9000/api/movies/${movie.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "application/json",
-          },
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
         },
-      );
+      });
 
       if (response.ok) {
         alert("Filme removido com sucesso!");

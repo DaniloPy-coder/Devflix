@@ -46,11 +46,12 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
     placeholderData: page === 1 ? initialData : undefined,
     staleTime: 1000 * 60 * 5,
   });
-
   const { data: localMovies, isLoading: isLoadingLocal } = useQuery<Movie[]>({
     queryKey: ["movies", "all_local"],
     queryFn: async () => {
-      const res = await fetch(`http://127.0.0.1:8000/api/movies`);
+      const baseUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:9000";
+      const res = await fetch(`${baseUrl}/api/movies`);
       return res.ok ? await res.json() : [];
     },
     enabled: isMounted,
