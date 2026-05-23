@@ -8,12 +8,14 @@ interface LocalMoviePageProps {
 async function getLocalMovieData(id: string) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
     const res = await fetch(`${baseUrl}/api/movies/${id}`, {
       cache: "no-store",
     });
+
     if (res.ok) return await res.json();
   } catch (e) {
-    console.error(e);
+    console.error("Erro ao buscar dados do filme:", e);
   }
   return null;
 }

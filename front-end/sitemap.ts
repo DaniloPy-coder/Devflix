@@ -1,11 +1,15 @@
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://seusite.com.br";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const localMovies = await fetch("http://127.0.0.1:8000/api/movies")
+  const localMovies = await fetch(`${apiUrl}/api/movies`)
     .then((res) => res.json())
-    .catch(() => []);
+    .catch((err) => {
+      console.error("Erro ao gerar sitemap:", err);
+      return [];
+    });
 
   const routes: MetadataRoute.Sitemap = [
     {

@@ -11,17 +11,19 @@ export interface Movie {
 
 async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const url = userId
-      ? `http://127.0.0.1:9000/api/movies?user_id=${userId}`
-      : "http://127.0.0.1:9000/api/movies";
+      ? `${baseUrl}/api/movies?user_id=${userId}`
+      : `${baseUrl}/api/movies`;
 
     const res = await fetch(url, {
       cache: "no-store",
     });
+
     if (!res.ok) return [];
     return await res.json();
   } catch (error) {
-    console.error("Erro ao buscar filmes locais do Laravel:", error);
+    console.error("Erro ao buscar filmes locais:", error);
     return [];
   }
 }

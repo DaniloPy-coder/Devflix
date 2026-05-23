@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { api } from "../services/api";
 
 export interface Movie {
   id: number | string;
@@ -50,21 +51,13 @@ export default function MovieCard({
     setIsDeleting(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      });
+      await api.delete(`/api/movies/${movie.id}`);
 
-      if (response.ok) {
-        alert("Filme removido com sucesso!");
-        onDeleted();
-      } else {
-        alert("Erro ao tentar remover o filme do servidor.");
-      }
+      alert("Filme removido com sucesso!");
+      onDeleted();
     } catch (error) {
-      alert("Erro ao conectar com o backend Laravel.");
+      console.error("Erro ao deletar:", error);
+      alert("Erro ao conectar com o backend. Verifique o Ngrok!");
     } finally {
       setIsDeleting(false);
     }

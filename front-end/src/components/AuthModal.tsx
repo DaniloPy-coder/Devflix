@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "../services/api";
 
 interface UserProps {
   id: number;
@@ -38,41 +39,30 @@ export default function AuthModal({
     e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
-    const endpoint = isLoginView ? "login" : "register";
+    const endpoint = isLoginView ? "/api/login" : "/api/register";
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(formData),
-        },
-      );
+      const response = await api.post(endpoint, formData);
 
-      const data = await response.json();
+      const { user, message: successMessage } = response.data;
 
-      if (response.ok) {
-        if (isLoginView) {
-          localStorage.setItem("devflix_user", JSON.stringify(data.user));
-          onAuthSuccess(data.user);
-          onClose();
-          window.location.reload();
-        } else {
-          setMessage({ type: "success", text: "Conta criada! Faça login." });
-          setIsLoginView(true);
-        }
+      if (isLoginView) {
+        localStorage.setItem("devflix_user", JSON.stringify(user));
+        onAuthSuccess(user);
+        onClose();
+        window.location.reload();
       } else {
         setMessage({
-          type: "error",
-          text: data.message || "Erro na operação.",
+          type: "success",
+          text: successMessage || "Conta criada! Faça login.",
         });
+        setIsLoginView(true);
       }
     } catch (error) {
-      setMessage({ type: "error", text: "Erro ao conectar com o servidor." });
+      const err = error as any;
+      const errorText =
+        err.response?.data?.message || "Erro ao conectar com o servidor.";
+      setMessage({ type: "error", text: errorText });
     } finally {
       setLoading(false);
     }
@@ -142,7 +132,7 @@ export default function AuthModal({
           className="w-full mt-4 text-neutral-400 text-sm hover:underline"
         >
           {isLoginView
-            ? "Novo por aqui? Assine agora."
+            ? "Novo por aqui? Cadastre-se."
             : "Já tem conta? Faça login."}
         </button>
       </div>

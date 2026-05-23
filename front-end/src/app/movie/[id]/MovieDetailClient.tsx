@@ -37,7 +37,9 @@ export default function MovieDetailsClient({
     queryFn: async () => {
       if (isLocal) {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
         const res = await fetch(`${baseUrl}/api/movies/${movieId}`);
+
         if (!res.ok) throw new Error("Filme não encontrado no banco local");
         return res.json();
       }

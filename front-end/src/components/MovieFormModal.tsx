@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { api } from "../services/api";
 interface MovieFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -35,28 +35,21 @@ export default function MovieFormModal({
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/movies`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ ...movieData, user_id: userId }),
-        },
-      );
+      await api.post("/api/movies", { ...movieData, user_id: userId });
 
-      if (response.ok) {
-        alert("Filme cadastrado com sucesso!");
-        onClose();
-        window.location.reload();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || "Erro ao cadastrar filme.");
-      }
-    } catch (error) {
-      alert("Erro ao conectar com o servidor.");
+      alert("Filme cadastrado com sucesso!");
+      onClose();
+      window.location.reload();
+    } catch (error: unknown) {
+      import("axios").then((axios) => {
+        if (axios.isAxiosError(error)) {
+          const errorMsg =
+            error.response?.data?.message || "Erro ao cadastrar filme.";
+          alert(errorMsg);
+        } else {
+          alert("Erro inesperado ao conectar ao servidor.");
+        }
+      });
     } finally {
       setLoading(false);
     }

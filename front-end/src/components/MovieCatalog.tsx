@@ -7,7 +7,7 @@ import MovieCard, { Movie } from "./MovieCard";
 import LoadingSpinner from "./LoadingSpinner";
 import { fetchPopularMovies } from "../services/tmdb";
 import { useDebounce } from "../hooks/useDebounce";
-
+import { api } from "../services/api";
 interface MovieCatalogProps {
   initialData: Movie[];
 }
@@ -46,13 +46,12 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
     placeholderData: page === 1 ? initialData : undefined,
     staleTime: 1000 * 60 * 5,
   });
+
   const { data: localMovies, isLoading: isLoadingLocal } = useQuery<Movie[]>({
     queryKey: ["movies", "all_local"],
     queryFn: async () => {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:9000";
-      const res = await fetch(`${baseUrl}/api/movies`);
-      return res.ok ? await res.json() : [];
+      const res = await api.get(`/api/movies`);
+      return res.data;
     },
     enabled: isMounted,
   });
