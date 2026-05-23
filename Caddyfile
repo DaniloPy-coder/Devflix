@@ -4,7 +4,7 @@
 
 :{$PORT} {
     # Define a pasta public como raiz
-    root * /app/back-end/public
+    root * /app/public
     
     # Ativa o PHP
     php_server
