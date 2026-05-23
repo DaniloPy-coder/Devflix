@@ -2,7 +2,7 @@
 nixPkgs = ["php83", "php83Packages.composer", "unzip"]
 
 [phases.build]
-cmds = ["cd back-end && composer install --no-dev --optimize-autoloader && php artisan migrate --force"]
+cmds = ["composer install --no-dev --optimize-autoloader && php artisan migrate --force"]
 
 [start]
-cmd = "cd back-end && php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php -S 0.0.0.0:$PORT -t public/"
