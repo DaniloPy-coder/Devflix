@@ -1,0 +1,8 @@
+{
+    debug
+}
+
+:{$PORT} {
+    root * /app/back-end/public
+    php_server
+}
