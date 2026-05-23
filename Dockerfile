@@ -16,10 +16,11 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platfo
 
 COPY back-end/ .
 
-RUN sed -i 's|/var/www/html|/var/www/html/back-end/public|g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's|/var/www/html|/var/www/html/back-end/public|g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's|/var/www/html|/var/www/html/back-end/public|g' /etc/apache2/apache2.conf
 
 # 8. Permissões
-RUN chown -R www-data:www-data /var/www/html/back-end/storage /var/www/html/back-end/bootstrap/cache
-
+RUN chown -R www-data:www-data /var/www/html/back-end/storage /var/www/html/back-end/bootstrap/cache \
+    && chmod -R 775 /var/www/html/back-end/storage /var/www/html/back-end/bootstrap/cache
 # 9. Comando final
 CMD php artisan migrate --force && apache2-foreground
