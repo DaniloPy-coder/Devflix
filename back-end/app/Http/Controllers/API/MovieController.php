@@ -22,37 +22,41 @@ class MovieController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'title'        => 'required|string|max:255',
-            'overview'     => 'nullable|string',
-            'poster_path'  => 'nullable|string|max:2048',
-            'release_date' => 'nullable|date',
-            'genre_ids'    => 'nullable|array',
-            'user_id'      => 'required',
+{
+    $validatedData = $request->validate([
+        'title'        => 'required|string|max:255',
+        'overview'     => 'nullable|string',
+        'poster_path'  => 'nullable|string|max:2048',
+        'release_date' => 'nullable|date',
+        'genre_name'   => 'required|string|max:255', 
+        'user_id'      => 'required',
+    ]);
+
+    try {
+        $movie = Movie::create([
+            'title'        => $validatedData['title'],
+            'overview'     => $validatedData['overview'] ?? null,
+            'poster_path'  => $validatedData['poster_path'] ?? null,
+            'release_date' => $validatedData['release_date'] ?? null,
+            'user_id'      => $validatedData['user_id'],
         ]);
 
-        try {
-            $movie = Movie::create([
-                'title'        => $validatedData['title'],
-                'overview'     => $validatedData['overview'] ?? null,
-                'poster_path'  => $validatedData['poster_path'] ?? null,
-                'release_date' => $validatedData['release_date'] ?? null,
-                'user_id'      => $validatedData['user_id'],
-            ]);
+        if (!empty($validatedData['genre_name'])) {
+            $genre = \App\Models\Genre::firstOrCreate([
+                'name' => trim($validatedData['genre_name'])
+              ]);
 
-            if (!empty($validatedData['genre_ids'])) {
-                $movie->genres()->sync($validatedData['genre_ids']);
-            }
-
-            return response()->json($movie, 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro interno ao salvar no banco de dados.',
-                'error'   => $e->getMessage()
-            ], 500);
+            $movie->genres()->sync([$genre->id]);
         }
+
+        return response()->json($movie, 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Erro interno ao salvar no banco de dados.',
+            'error'   => $e->getMessage()
+        ], 500);
     }
+}
 
     public function destroy($id)
     {
