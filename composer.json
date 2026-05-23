@@ -1,6 +1,0 @@
-{
-    "name": "laravel/app",
-    "require": {
-        "php": "^8.3"
-    }
-}

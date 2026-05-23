@@ -1,9 +1,0 @@
-[phases.setup]
-nixPkgs = ["php83", "php83Packages.composer", "nodejs_18"]
-
-[phases.build]
-cmds = ["composer install --no-dev --optimize-autoloader", "npm install", "npm run build", "php artisan migrate --force"]
-
-[start]
-# Comando correto para rodar o servidor na raiz
-cmd = "php -S 0.0.0.0:$PORT -t public/"
