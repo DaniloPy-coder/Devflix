@@ -51,7 +51,7 @@ export default function MovieCard({
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/movies/${movie.id}`,
+        `http://127.0.0.1:9000/api/movies/${movie.id}`,
         {
           method: "DELETE",
           headers: {
