@@ -12,6 +12,10 @@ WORKDIR /var/www/html/back-end
 
 COPY back-end/composer.json back-end/composer.lock ./
 
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && sed -i 's/display_errors = Off/display_errors = On/g' "$PHP_INI_DIR/php.ini" \
+    && sed -i 's/display_startup_errors = Off/display_startup_errors = On/g' "$PHP_INI_DIR/php.ini"
+
 RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 COPY back-end/ .
