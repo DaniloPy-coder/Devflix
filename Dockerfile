@@ -17,7 +17,7 @@ WORKDIR /var/www/html/back-end
 COPY back-end/composer.json back-end/composer.lock ./
 
 # 6. Instala/Atualiza dependências
-RUN composer update --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
+RUN composer update --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs -W
 
 # 7. Copia o restante dos arquivos
 COPY back-end/ .
