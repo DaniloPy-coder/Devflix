@@ -16,7 +16,11 @@ COPY . /var/www/html/
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
 # Permissões
-RUN chown -R www-data:www-data /var/www/html/storage
-
+RUN mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/logs \
+    && chown -R www-data:www-data /var/www/html/storage
+    
 # Comando para rodar as migrações e o servidor ao iniciar
 CMD php /var/www/html/artisan migrate --force && apache2-foreground
