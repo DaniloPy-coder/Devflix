@@ -3,6 +3,12 @@
 }
 
 :{$PORT} {
-    root * /app/public
+    # Define a pasta public como raiz
+    root * /app/back-end/public
+    
+    # Ativa o PHP
     php_server
+    
+    # Corrige problemas de roteamento do Laravel
+    try_files {path} {path}/ /index.php?{query}
 }
