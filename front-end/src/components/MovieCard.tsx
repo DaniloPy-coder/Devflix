@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { api } from "../services/api";
 
 export interface Movie {
   id: number | string;
@@ -16,19 +14,11 @@ export interface Movie {
 
 interface MovieCardProps {
   movie: Movie;
-  isLogged: boolean;
-  currentUserId?: number | null;
-  onDeleted?: () => void;
+  // isLogged, currentUserId e onDeleted não são mais necessários para exclusão
+  isLogged?: boolean;
 }
 
-export default function MovieCard({
-  movie,
-  isLogged,
-  currentUserId,
-  onDeleted,
-}: MovieCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-
+export default function MovieCard({ movie, isLogged = false }: MovieCardProps) {
   const releaseYear = movie.release_date
     ? movie.release_date.split("-")[0]
     : "N/A";
@@ -39,30 +29,7 @@ export default function MovieCard({
       : `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://placehold.co/500x750?text=Sem+Foto";
 
-  // Lógica de exclusão: só permite se for filme local e pertencer ao usuário
   const isLocalMovie = !!movie.user_id;
-  const canDelete = isLogged && isLocalMovie && movie.user_id === currentUserId;
-
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!confirm(`Deseja remover "${movie.title}" do catálogo?`)) return;
-
-    setIsDeleting(true);
-
-    try {
-      await api.delete(`/api/movies/${movie.id}`);
-      alert("Filme removido com sucesso!");
-      // Chamamos onDeleted apenas se ele existir
-      if (onDeleted) onDeleted();
-    } catch (error) {
-      console.error("Erro ao deletar:", error);
-      alert("Erro ao conectar com o backend. Verifique o Ngrok!");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   return (
     <Link
@@ -81,19 +48,6 @@ export default function MovieCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
         />
-
-        {canDelete && (
-          <div
-            onClick={handleDelete}
-            role="button"
-            className={`absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-20 scale-90 group-hover:scale-100 flex items-center justify-center cursor-pointer ${
-              isDeleting ? "bg-neutral-600 pointer-events-none" : ""
-            }`}
-            title="Excluir filme"
-          >
-            {isDeleting ? "..." : "🗑️"}
-          </div>
-        )}
       </div>
 
       <div className="p-4 flex flex-col grow justify-between gap-2">

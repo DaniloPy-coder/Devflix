@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import AuthModal from "./AuthModal";
-import MovieFormModal from "./MovieFormModal";
 
 interface UserProps {
   id: number;
@@ -12,7 +11,6 @@ interface UserProps {
 
 export default function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isMovieFormOpen, setIsMovieFormOpen] = useState(false);
   const [user, setUser] = useState<UserProps | null>(() => {
     if (typeof window !== "undefined") {
       const savedUser = localStorage.getItem("devflix_user");
@@ -51,12 +49,6 @@ export default function Header() {
                 Olá, {user.name}
               </span>
               <button
-                onClick={() => setIsMovieFormOpen(true)}
-                className="bg-white hover:bg-neutral-200 text-black font-bold py-2 px-4 rounded-lg transition-colors text-sm"
-              >
-                Cadastrar Filme
-              </button>
-              <button
                 onClick={handleLogout}
                 className="text-neutral-400 hover:text-white text-sm"
               >
@@ -79,13 +71,6 @@ export default function Header() {
         onClose={() => setIsAuthModalOpen(false)}
         onAuthSuccess={setUser}
       />
-      {user && (
-        <MovieFormModal
-          isOpen={isMovieFormOpen}
-          onClose={() => setIsMovieFormOpen(false)}
-          userId={user.id}
-        />
-      )}
     </>
   );
 }

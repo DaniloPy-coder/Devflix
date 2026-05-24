@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import { useState, useEffect } from "react";
-import { api } from "@/src/services/api";
+import { fetchMovieById } from "@/src/services/tmdb";
+
 interface MovieDetail {
   id: number | string;
   title: string;
@@ -20,13 +21,11 @@ interface MovieDetail {
 interface MovieDetailsClientProps {
   movieId: string;
   initialData: MovieDetail | null;
-  isLocal: boolean;
 }
 
 export default function MovieDetailsClient({
   movieId,
   initialData,
-  isLocal,
 }: MovieDetailsClientProps) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -39,17 +38,8 @@ export default function MovieDetailsClient({
     isLoading,
     error,
   } = useQuery<MovieDetail, Error>({
-    queryKey: ["movie", isLocal ? "local" : "tmdb", movieId],
-    queryFn: async () => {
-      if (isLocal) {
-        const { data } = await api.get(`/api/movies/${movieId}`);
-        return data;
-      }
-      const { fetchMovieById } = await import("@/src/services/tmdb");
-      const data = await fetchMovieById(movieId);
-      if (!data) throw new Error("Filme não encontrado na API do TMDB");
-      return data;
-    },
+    queryKey: ["movie", movieId],
+    queryFn: () => fetchMovieById(movieId),
     initialData: initialData ?? undefined,
     staleTime: 1000 * 60 * 10,
     enabled: isMounted,
