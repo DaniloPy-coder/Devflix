@@ -11,13 +11,14 @@ export interface Movie {
   poster_path: string;
   release_date: string;
   user_id?: number;
+  origin?: "community" | "tmdb";
 }
 
 interface MovieCardProps {
   movie: Movie;
   isLogged: boolean;
   currentUserId?: number | null;
-  onDeleted: () => void;
+  onDeleted?: () => void;
 }
 
 export default function MovieCard({
@@ -38,6 +39,7 @@ export default function MovieCard({
       : `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://placehold.co/500x750?text=Sem+Foto";
 
+  // Lógica de exclusão: só permite se for filme local e pertencer ao usuário
   const isLocalMovie = !!movie.user_id;
   const canDelete = isLogged && isLocalMovie && movie.user_id === currentUserId;
 
@@ -45,15 +47,15 @@ export default function MovieCard({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!confirm(`Deseja remover "${movie.title}" do catálogo local?`)) return;
+    if (!confirm(`Deseja remover "${movie.title}" do catálogo?`)) return;
 
     setIsDeleting(true);
 
     try {
       await api.delete(`/api/movies/${movie.id}`);
-
       alert("Filme removido com sucesso!");
-      onDeleted();
+      // Chamamos onDeleted apenas se ele existir
+      if (onDeleted) onDeleted();
     } catch (error) {
       console.error("Erro ao deletar:", error);
       alert("Erro ao conectar com o backend. Verifique o Ngrok!");
@@ -83,14 +85,7 @@ export default function MovieCard({
         {canDelete && (
           <div
             onClick={handleDelete}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleDelete(e as unknown as React.MouseEvent);
-              }
-            }}
             role="button"
-            tabIndex={0}
             className={`absolute top-3 right-3 bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 z-20 scale-90 group-hover:scale-100 flex items-center justify-center cursor-pointer ${
               isDeleting ? "bg-neutral-600 pointer-events-none" : ""
             }`}
