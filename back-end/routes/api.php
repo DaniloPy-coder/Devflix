@@ -4,13 +4,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
-use App\Http\Controllers\API\MovieController;
 
-Route::apiResource('movies', MovieController::class);
+Route::post('/register', function (Request $request) {
+    $dadosValidados = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8',
+    ]);
 
-Route::options('{any}', function () {
-    return response()->json([], 200);
-})->where('any', '.*');
+    $dadosValidados['password'] = Hash::make($dadosValidados['password']);
+    $user = User::create($dadosValidados);
+
+    return response()->json([
+        'message' => 'Usuário criado com sucesso!',
+        'user' => $user
+    ], 201);
+});
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
@@ -31,19 +40,7 @@ Route::post('/login', function (Request $request) {
         'user' => $user
     ], 200);
 });
-    
 
-Route::post('/register', function (Request $request) {
-    $dadosValidados = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8',
-    ]);
-
-    $user = User::create($dadosValidados);
-
-    return response()->json([
-        'message' => 'Usuário criado com sucesso!',
-        'user' => $user
-    ], 201);
-});
+Route::options('{any}', function () {
+    return response()->json([], 200);
+})->where('any', '.*');
