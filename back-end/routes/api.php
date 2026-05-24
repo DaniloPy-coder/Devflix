@@ -8,6 +8,10 @@ use App\Http\Controllers\API\MovieController;
 
 Route::apiResource('movies', MovieController::class);
 
+Route::options('{any}', function () {
+    return response()->json([], 200);
+})->where('any', '.*');
+
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'email' => 'required|string|email',
