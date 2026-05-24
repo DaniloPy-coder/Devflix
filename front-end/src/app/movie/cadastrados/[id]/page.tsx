@@ -1,6 +1,8 @@
 import { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
 import MovieDetailsClient from "../../[id]/MovieDetailClient";
 
+export const dynamic = "force-dynamic";
 interface LocalMoviePageProps {
   params: Promise<{ id: string }>;
 }
