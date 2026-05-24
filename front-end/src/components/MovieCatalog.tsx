@@ -16,17 +16,17 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isLogged, setIsLogged] = useState<boolean>(false);
 
-  const [currentUserId] = useState<number | null>(() => {
-    if (typeof window === "undefined") return null;
+  useEffect(() => {
     const savedUser = localStorage.getItem("devflix_user");
-    return savedUser ? Number(JSON.parse(savedUser).id) : null;
-  });
-
-  const [isLogged] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem("devflix_user");
-  });
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      setCurrentUserId(Number(user.id));
+      setIsLogged(true);
+    }
+  }, []);
 
   const queryClient = useQueryClient();
 

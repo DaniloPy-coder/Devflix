@@ -1,8 +1,9 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'register', 'movies'],
-
+    
+    'paths' => ['api/*', 'sanctum/csrf-cookie', '*'],
+    
     'allowed_methods' => ['*'],
 
     'allowed_origins' => ['https://devflix-olive.vercel.app'], 
