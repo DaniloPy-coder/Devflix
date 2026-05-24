@@ -33,14 +33,12 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const queryClient = useQueryClient();
   const debouncedSearch = useDebounce(search, 300);
 
-  // 1. Consulta TMDB
   const { data: tmdbMovies, isLoading: isLoadingTmdb } = useQuery<Movie[]>({
     queryKey: ["movies", "popular", page],
     queryFn: () => fetchPopularMovies(page),
     placeholderData: page === 1 ? initialData : undefined,
   });
 
-  // 2. Consulta Local (Backend)
   const { data: localMovies, isLoading: isLoadingLocal } = useQuery<Movie[]>({
     queryKey: ["movies", "all_local"],
     queryFn: async () => {
@@ -61,10 +59,11 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   if (!isMounted) return <LoadingSpinner />;
 
   const myMovies = (localMovies || []).filter(
-    (m) => m.user_id === currentUserId,
+    (m) => Number(m.user_id) === Number(currentUserId),
   );
+
   const communityMovies = (localMovies || []).filter(
-    (m) => m.user_id !== currentUserId,
+    (m) => Number(m.user_id) !== Number(currentUserId),
   );
 
   const filteredMyMovies = myMovies.filter((m) =>
@@ -76,6 +75,9 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const filteredTmdb = (tmdbMovies || []).filter((m) =>
     m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
+
+  console.log("Filmes locais recebidos:", localMovies);
+  console.log("ID do usuário logado:", currentUserId);
 
   return (
     <>
