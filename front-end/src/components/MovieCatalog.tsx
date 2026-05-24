@@ -51,6 +51,7 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
     queryKey: ["movies", "all_local"],
     queryFn: async () => {
       const res = await api.get(`/api/movies`);
+      console.log("DADOS DO LARAVEL:", res.data);
       return res.data;
     },
     enabled: isMounted,
