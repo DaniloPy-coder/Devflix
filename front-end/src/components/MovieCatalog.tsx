@@ -8,6 +8,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { fetchPopularMovies } from "../services/tmdb";
 import { useDebounce } from "../hooks/useDebounce";
 import { api } from "../services/api";
+
 interface MovieCatalogProps {
   initialData: Movie[];
 }
@@ -20,6 +21,7 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const [isLogged, setIsLogged] = useState<boolean>(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const savedUser = localStorage.getItem("devflix_user");
     if (savedUser) {
       const user = JSON.parse(savedUser);
@@ -29,30 +31,20 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   }, []);
 
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page]);
-
   const debouncedSearch = useDebounce(search, 300);
 
+  // 1. Consulta TMDB
   const { data: tmdbMovies, isLoading: isLoadingTmdb } = useQuery<Movie[]>({
     queryKey: ["movies", "popular", page],
     queryFn: () => fetchPopularMovies(page),
     placeholderData: page === 1 ? initialData : undefined,
-    staleTime: 1000 * 60 * 5,
   });
 
+  // 2. Consulta Local (Backend)
   const { data: localMovies, isLoading: isLoadingLocal } = useQuery<Movie[]>({
     queryKey: ["movies", "all_local"],
     queryFn: async () => {
       const res = await api.get(`/api/movies`);
-      console.log("--- DADOS RECEBIDOS DO BACKEND ---");
-      console.log(res.data);
       return res.data;
     },
     enabled: isMounted,
@@ -78,11 +70,9 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
   const filteredMyMovies = myMovies.filter((m) =>
     m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
-
   const filteredCommunity = communityMovies.filter((m) =>
     m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
-
   const filteredTmdb = (tmdbMovies || []).filter((m) =>
     m.title.toLowerCase().includes(debouncedSearch.toLowerCase()),
   );
@@ -144,26 +134,6 @@ export default function MovieCatalog({ initialData }: MovieCatalogProps) {
                 onDeleted={() => {}}
               />
             ))}
-          </div>
-        )}
-
-        {search === "" && (
-          <div className="flex items-center justify-center gap-6 mt-12 mb-8">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={page === 1 || isLoadingTmdb}
-              className="px-6 py-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 disabled:opacity-50"
-            >
-              Anterior
-            </button>
-            <span className="text-white font-medium">Página {page}</span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={isLoadingTmdb}
-              className="px-6 py-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 disabled:opacity-50"
-            >
-              Próxima
-            </button>
           </div>
         )}
       </section>
