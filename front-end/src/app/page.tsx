@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { unstable_noStore as noStore } from "next/cache";
 import MovieCatalog from "../components/MovieCatalog";
 import { fetchPopularMovies } from "../services/tmdb";
 
@@ -13,6 +14,7 @@ export interface Movie {
 async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!baseUrl) return [];
     const url = userId
       ? `${baseUrl}/api/movies?user_id=${userId}`
       : `${baseUrl}/api/movies`;
@@ -30,6 +32,7 @@ async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
 }
 
 export default async function HomePage() {
+  noStore();
   let combinedMovies: Movie[] = [];
   let errorMessage = "";
 
