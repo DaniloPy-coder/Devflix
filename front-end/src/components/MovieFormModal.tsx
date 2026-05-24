@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 interface MovieFormModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export default function MovieFormModal({
   userId,
 }: MovieFormModalProps) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
   const [movieData, setMovieData] = useState({
     title: "",
     overview: "",
@@ -37,9 +39,10 @@ export default function MovieFormModal({
     try {
       await api.post("/api/movies", { ...movieData, user_id: userId });
 
+      queryClient.invalidateQueries({ queryKey: ["movies", "all_local"] });
+
       alert("Filme cadastrado com sucesso!");
       onClose();
-      window.location.reload();
     } catch (error: unknown) {
       import("axios").then((axios) => {
         if (axios.isAxiosError(error)) {
