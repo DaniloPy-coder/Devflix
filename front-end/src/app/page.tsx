@@ -14,7 +14,6 @@ export interface Movie {
 export default async function HomePage() {
   noStore();
 
-  // Buscamos apenas o que é público e externo
   const tmdbMovies = await fetchPopularMovies(1);
   const listTmdb = (Array.isArray(tmdbMovies) ? tmdbMovies : []) as Movie[];
 
@@ -25,8 +24,7 @@ export default async function HomePage() {
           Catálogo de Filmes
         </h1>
         <p className="text-lg text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
-          Explore os filmes globais do TMDB misturados aos seus títulos
-          personalizados locais!
+          Explore os filmes globais do TMDB
         </p>
       </header>
 
