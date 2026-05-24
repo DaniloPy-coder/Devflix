@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
-
+import { useState, useEffect } from "react";
 interface MovieDetail {
   id: number | string;
   title: string;
@@ -27,40 +27,42 @@ export default function MovieDetailsClient({
   initialData,
   isLocal,
 }: MovieDetailsClientProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const {
     data: movie,
     isLoading,
     error,
   } = useQuery<MovieDetail, Error>({
     queryKey: ["movie", isLocal ? "local" : "tmdb", movieId],
-
     queryFn: async () => {
       if (isLocal) {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
         const res = await fetch(`${baseUrl}/api/movies/${movieId}`);
-
         if (!res.ok) throw new Error("Filme não encontrado no banco local");
         return res.json();
       }
-
       const { fetchMovieById } = await import("@/src/services/tmdb");
       const data = await fetchMovieById(movieId);
-
       if (!data) throw new Error("Filme não encontrado na API do TMDB");
       return data;
     },
     initialData: initialData ?? undefined,
     staleTime: 1000 * 60 * 10,
+    enabled: isMounted,
   });
 
-  if (isLoading) return <LoadingSpinner />;
+  if (!isMounted || isLoading) return <LoadingSpinner />;
 
   if (error || !movie) {
     return (
       <div className="text-center py-12">
         <p className="text-red-500 font-medium">
-          Erro ao carregar os detalhes do filme.
+          Erro ao carregar os detalhes.
         </p>
         <Link
           href="/"

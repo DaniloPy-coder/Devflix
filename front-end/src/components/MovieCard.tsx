@@ -38,8 +38,7 @@ export default function MovieCard({
       : `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://placehold.co/500x750?text=Sem+Foto";
 
-  const isLocalMovie =
-    typeof movie.id === "number" && movie.user_id !== undefined;
+  const isLocalMovie = !!movie.user_id;
   const canDelete = isLogged && isLocalMovie && movie.user_id === currentUserId;
 
   const handleDelete = async (e: React.MouseEvent) => {
