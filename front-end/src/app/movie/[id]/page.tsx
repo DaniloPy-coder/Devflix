@@ -29,11 +29,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
   }
   return (
     <main className="grow container mx-auto px-4 py-12 max-w-7xl">
-      <MovieDetailsClient
-        movieId={id}
-        initialData={initialData}
-        isLocal={false}
-      />
+      <MovieDetailsClient movieId={id} initialData={initialData} />
     </main>
   );
 }
