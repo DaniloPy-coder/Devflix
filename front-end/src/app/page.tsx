@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import MovieCatalog from "../components/MovieCatalog";
 import { fetchPopularMovies } from "../services/tmdb";
 
