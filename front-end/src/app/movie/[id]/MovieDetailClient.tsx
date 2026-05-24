@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import { useState, useEffect } from "react";
+import { api } from "@/src/services/api";
 interface MovieDetail {
   id: number | string;
   title: string;
@@ -41,10 +42,8 @@ export default function MovieDetailsClient({
     queryKey: ["movie", isLocal ? "local" : "tmdb", movieId],
     queryFn: async () => {
       if (isLocal) {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${baseUrl}/api/movies/${movieId}`);
-        if (!res.ok) throw new Error("Filme não encontrado no banco local");
-        return res.json();
+        const { data } = await api.get(`/api/movies/${movieId}`);
+        return data;
       }
       const { fetchMovieById } = await import("@/src/services/tmdb");
       const data = await fetchMovieById(movieId);

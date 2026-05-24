@@ -21,6 +21,9 @@ async function fetchLocalMovies(userId?: string): Promise<Movie[]> {
 
     const res = await fetch(url, {
       cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
     });
 
     if (!res.ok) return [];
