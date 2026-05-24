@@ -6,7 +6,7 @@ return [
     
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://devflix-olive.vercel.app'], 
+    'allowed_origins' => ['https://devflix-sable.vercel.app'], 
 
     'allowed_origins_patterns' => [],
 
