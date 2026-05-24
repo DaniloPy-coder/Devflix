@@ -65,7 +65,9 @@ export default function MovieCard({
 
   return (
     <Link
-      href={isLocalMovie ? `/movie/local/${movie.id}` : `/movie/${movie.id}`}
+      href={
+        isLocalMovie ? `/movie/cadastrados/${movie.id}` : `/movie/${movie.id}`
+      }
       className="group relative flex flex-col bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
     >
       <div className="relative aspect-2/3 w-full overflow-hidden bg-neutral-200 dark:bg-neutral-800">
