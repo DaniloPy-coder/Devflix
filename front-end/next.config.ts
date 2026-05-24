@@ -14,6 +14,15 @@ const nextConfig = {
       },
     ],
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://defender-reply-chili.ngrok-free.dev/api/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
